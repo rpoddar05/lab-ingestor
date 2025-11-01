@@ -1,0 +1,20 @@
+server:
+  port: 8082
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+      # include type info so consumers can deserialize easily
+        spring.json.add.type.headers: false
+        spring.json.value.default.type: com.phep.labingestor.events.LabResultCreated
+    properties:
+      # Helpful in dev if broker is slow to start
+      reconnect.backoff.ms: 1000
+      retry.backoff.ms: 1000
+
+app:
+  topic: lab.events
