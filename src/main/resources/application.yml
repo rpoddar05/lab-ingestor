@@ -2,15 +2,29 @@ server:
   port: 8082
 
 spring:
+  application:
+    name: lab-ingestor
+
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+
   kafka:
     bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      # Producer-level reliability & batching
+      acks: all
+      retries: 10
       properties:
+        enable.idempotence: true
+        linger.ms: 10        # small batching in dev
+        batch.size: 65536    # ~64KB
+        compression.type: lz4
       # include type info so consumers can deserialize easily
-        spring.json.add.type.headers: false
-        spring.json.value.default.type: com.phep.labingestor.events.LabResultCreated
+        spring.json.add.type.headers: true
+        #spring.json.value.default.type: com.phep.labingestor.events.LabResultCreated
     properties:
       # Helpful in dev if broker is slow to start
       reconnect.backoff.ms: 1000
@@ -18,3 +32,16 @@ spring:
 
 app:
   topic: lab.events
+
+logging:
+  level:
+    root: info
+    org.springframework: warn
+    org.apache.kafka: info
+    com.phep.labingestor: debug   # your code
+  file:
+    name: logs/lab-ingestor.log
+  pattern:
+    # show correlation id if present; else n/a
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%X{correlationId:-n/a}] %logger{36} - %msg%n"
+    file:    "%d{yyyy-MM-dd HH:mm:ss.SSS}     %-5level [%X{correlationId:-n/a}] %logger{36} - %msg%n"

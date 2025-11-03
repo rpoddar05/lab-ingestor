@@ -11,7 +11,7 @@ public class KafkaConfig {
     @Bean
     NewTopic labEvents(@Value("${app.topic}") String topic) {
         //1 partition + replication-factor 1 is gine for local dev
-        return new NewTopic("lab-events", 1, (short) 1);
+        return new NewTopic(topic, 1, (short) 1);
     }
 
 }
