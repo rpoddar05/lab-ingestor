@@ -1,4 +1,4 @@
-# docker-compose.yml
+# docker-compose-legacy.yml
 services:
   redpanda:
     image: redpandadata/redpanda:latest

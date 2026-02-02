@@ -10,7 +10,7 @@ spring:
       fail-on-unknown-properties: true
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:19092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

@@ -14,6 +14,6 @@ public record LabEvent(
         @NotNull LocalDate dob,
         @NotBlank String testCode,
         @NotBlank String resultValue,
-        @NotBlank String resultStatus, //positive // negative //indeterminate
+        @NotNull ResultStatus resultStatus, //positive // negative //indeterminate
         @NotBlank String labName
 ) { }
