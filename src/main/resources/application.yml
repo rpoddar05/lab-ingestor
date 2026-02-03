@@ -5,6 +5,18 @@ spring:
   application:
     name: lab-ingestor
 
+  datasource:
+    url: jdbc:postgresql://localhost:5433/labingestor_db
+    username: phep
+    password: phep
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    locations: classpath:db/migration
+
   jackson:
     deserialization:
       fail-on-unknown-properties: true
