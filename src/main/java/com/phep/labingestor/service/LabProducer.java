@@ -17,18 +17,18 @@ public class LabProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final String topic;
-
-    public LabProducer(KafkaTemplate<String, Object> kafkaTemplate,
+    private final KafkaKeyStrategy keyStrategy;
+    public LabProducer(KafkaTemplate<String, Object> kafkaTemplate,KafkaKeyStrategy keyStrategy,
                        @Value("${app.topic}") String topic) {
         this.kafkaTemplate = kafkaTemplate;
         this.topic = topic;
+        this.keyStrategy = keyStrategy;
     }
 
     public void send(LabEvent event) {
 
-        //use last name or caseId as the key so all messages for a person go to the same partition
-        String key = event.caseId() != null ? event.caseId() : event.patientLastName();
-
+        // Key strategy: if caseId present -> use it, else hash patient identity
+        String key = keyStrategy.keyFor(event);
         // Fetch correlation id from MDC (set by CorrelationIdFilter)
         String correlationId = MDC.get(CorrelationIdFilter.MDC_KEY);
 
