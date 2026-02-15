@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 @JsonIgnoreProperties(ignoreUnknown = false) // <-- reject unknown keys
 public record LabEvent(
+        String eventId, // NEW: idempotency key
         String caseId, // can be null if not matched yet
         @NotBlank  String patientFirstName,
         @NotBlank String patientLastName,

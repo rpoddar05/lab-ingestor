@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @Slf4j
 @RestController
 @RequestMapping("/labs")
@@ -25,10 +27,32 @@ public class LabIngestController {
     @PostMapping
     public ResponseEntity<Void> send(@Valid @RequestBody LabEvent event) {
 
-        log.info("ingest.request testCode={} status={} patientLast={} caseId={}",
-                event.testCode(), event.resultStatus(), event.patientLastName(), event.caseId());
-        producer.send(event);
-        log.info("ingest.accepted caseId={} patientLast={}", event.caseId(), event.patientLastName());
+        // Ensure idempotency key exists (generated at producer edge)
+        String eventId = (event.eventId() == null || event.eventId().isBlank())
+                ? UUID.randomUUID().toString()
+                : event.eventId().trim();
+
+        LabEvent normalized = new LabEvent(
+                eventId,
+                event.caseId(),
+                event.patientFirstName(),
+                event.patientLastName(),
+                event.dob(),
+                event.testCode(),
+                event.resultValue(),
+                event.resultStatus(),
+                event.labName()
+        );
+
+        log.info("ingest.request eventId={} testCode={} status={} patientLast={} caseId={}",
+                normalized.eventId(), normalized.testCode(), normalized.resultStatus(),
+                normalized.patientLastName(), normalized.caseId());
+
+        producer.send(normalized);
+
+        log.info("ingest.accepted eventId={} caseId={} patientLast={}",
+                normalized.eventId(), normalized.caseId(), normalized.patientLastName());
+
         return ResponseEntity.accepted().build();
     }
 
